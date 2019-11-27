@@ -200,6 +200,54 @@ Crearemos keys con el mod:
 
 - Comprobar que las keys aparecen en la misma particion
 
+# CONSUMIDORES
+
+Creamos una nueva clase java ConsumerDemo.java, con un main
+
+```java
+public class ConsumerDemo {
+
+    public static void main(String[] args) {
+        Logger logger = LoggerFactory.getLogger(ConsumerDemo.class);
+
+    }
+}
+```
+
+Creamos las properties y consultamos el manual de properties
+
+
+se usa `auto.offset.reset` para definir el comportamiento del consumidor cuando no hay una posición comprometida (que sería el caso cuando el grupo se inicializa por primera vez o cuando un desplazamiento está fuera de rango). Puede elegir restablecer la posición al desplazamiento "más antiguo (earliest)" o al desplazamiento "más reciente (latest)" (el valor predeterminado). También se puede seleccionar "ninguno (none)" si se prefiere establecer el desplazamiento inicial usted mismo y está dispuesto a manejar los errores fuera de rango manualmente.
+
+```java
+    Properties properties = new Properties();
+    properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "127.0.0.1:9092");
+    properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_DOC, StringDeserializer.class.getName());
+    properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+    // al final un grupo es una aplicación en cierto sentido. profundizar en este punto
+    properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "mi aplicacion");
+    // para definir, cuando levantamos un consumidor por primera vez, cual es su offset
+    properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+```
+
+Creamos el consumidor
+
+```java
+    // Crear el consumidor
+    KafkaConsumer<String, String> kafkaConsumer = new KafkaConsumer<String,String>(properties); 
+
+    // Suscribir a los topics ( a un array de topics)
+    kafkaConsumer.subscribe(Arrays.asList("partitions", "primer-topic"));
+```
+
+Ahora el `poll` 
+
+
+```java
+
+
+```
+
 
 
 
