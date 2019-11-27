@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - ProducerDemo",
+            "request": "launch",
+            "mainClass": "com.iprocuratio.kafka.ProducerDemo",
+            "projectName": "java-api"
+        }
+    ]
+}
