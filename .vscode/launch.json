@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - ConsumerDemo",
+            "request": "launch",
+            "mainClass": "com.iprocuratio.kafka.ConsumerDemo",
+            "projectName": "java-api"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - ProducerDemo",
             "request": "launch",
             "mainClass": "com.iprocuratio.kafka.ProducerDemo",
