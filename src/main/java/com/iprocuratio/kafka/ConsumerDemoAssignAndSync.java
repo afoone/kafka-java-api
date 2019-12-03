@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * ConsumerDemo
  */
-public class ConsumerDemo {
+public class ConsumerDemoAssignAndSync {
 
     public static void main(String[] args) {
         final Logger logger = LoggerFactory.getLogger(ConsumerDemo.class);
@@ -25,7 +25,9 @@ public class ConsumerDemo {
         properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         // al final un grupo es una aplicación en cierto sentido. profundizar en este
         // punto
-        properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "mi_aplicacion");
+
+        // ASSIGN AND SEEK: NO TENGO GROUPO ID
+       // properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "mi_aplicacion");
         // para definir, cuando levantamos un consumidor por primera vez, cual es su
         // offset
         properties.setProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");

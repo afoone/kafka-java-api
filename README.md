@@ -403,6 +403,146 @@ Y crearé el Kafka consumer en el constructor, esperando properties por ejemplo:
             }
 ```
 
+Hay que crear un *shutdown* :
+
+```java
+    public void shutdown(){
+        // El método wakeup lo que hace es interrumpir el poll, esto es el while(true)
+        // Lo que hace realmente es lanzar una excepción llamada WakeUpException
+        kafkaConsumer.wakeup();
+    }
+```
+
+Para todo ello tenemos que poner el `try` en su sitio, rodeando el `while` de forma que aceptemos la excepción.
+
+```java
+   try {
+    while (true) {
+        ConsumerRecords<String, String> consumerRecords = kafkaConsumer.poll(Duration.ofMillis(1000));
+        for (ConsumerRecord<String, String> consumerRecord : consumerRecords) {
+            logger.info("key", consumerRecord.key());
+            logger.info("value", consumerRecord.value());
+            logger.info("offset", consumerRecord.offset());
+            logger.info("partition", consumerRecord.partition());
+
+        }
+    }
+    
+} catch (WakeupException e) {
+    logger.error("Recibida señal de shutdown", e);
+} finally {
+    // Aquí cerraremos el consumidor, tras la señan de shutdown
+    kafkaConsumer.close();
+    // le cominicamos a nuestro main code que hemos terminado con el consumidor
+    latch.countDown();
+}
+```
+
+
+Hay problemas en la clase dentro de la clase, con lo cual levanto la clase final
+
+
+```java
+Thread miThread = new Thread(kafkaConsumer);
+logger.debug("creando el thread");
+miThread.start();
+```
+
+
+A partir de ahora necesitasmos la parte de main():
+
+```java
+ // el latch para cuando tenemos múltiples threads
+CountDownLatch countDownLatch = new CountDownLatch(1);
+
+// creamos el runnable del consumidor
+final Runnable kafkaConsumer = new ConsumerThread(countDownLatch, properties);
+
+// Arrancamos el thread
+Thread miThread = new Thread(kafkaConsumer);
+logger.debug("creando el thread");
+miThread.start();
+
+// creamos el shutdown hook con una función anónima
+// addShutdownHook() will register some actions which is to be performed on a
+// Program's termination. The program that you start ends in two ways:
+
+Runtime.getRuntime().addShutdownHook(new Thread() {
+    public void run() {
+        logger.info("gracefully stopping...");
+        ((ConsumerThread) kafkaConsumer).shutdown();
+        logger.info("terminado.");
+    }
+
+});
+
+// aquí esperamos que termine
+try {
+    countDownLatch.await();
+} catch (InterruptedException e) {
+    // La aplicación se esta
+    logger.info("la aplicación ha sido interrumpida");
+} finally {
+    logger.info("la aplicación se ha cerrado");
+}
+```
+
+# Assign and seek
+Es básicamente otra forma de crear una aplicación. En este caso voy a copiar ConsumerDemo y crearé otra clase. 
+
+Cambios:
+
+1. No tengo ningún *group id*:
+```java
+  // ASSIGN AND SEEK: NO TENGO GROUPO ID
+  // properties.setProperty(ConsumerConfig.GROUP_ID_CONFIG, "mi_aplicacion");
+```
+
+2. No me suscribo a ningún topic en concreto
+```java
+
+
+        // Suscribir a los topics ( a un array de topics)
+        // Con assign and seek no me suscribo a ningun topic en concreto
+  //      this.kafkaConsumer.subscribe(Arrays.asList("partitions", "primer-topic"));
+
+```
+
+Lo que hacemos es configurar la partición desde donde vamos a leer y al mismo tiempo el offset que queremos leer
+
+```java
+     // Configuramos una partición desde donde queremos leer ( o una lista de ellas )
+    TopicPartition topicPartition = new TopicPartition("primer-topic", 0);
+    kafkaConsumer.assign(Arrays.asList(topicPartition));
+
+
+    // seek
+    long offsetToReadFrom = 5L;
+    kafkaConsumer.seek(topicPartition, offsetToReadFrom);
+    // Lo que decimios es *este consumidor ha de leer de esta partición y ha de leer el offset 15*
+```
+
+En el while podemos incluir una condición de salida, por ejemplo un núemro de mensajes para leer 
+
+```java
+    // Ponemos una condición de salida que es el número de mensajes que vamos a leer
+    int mensajesLeidos = 0;
+
+    // Buscamos nuevos datos
+    try {
+        while (mensajesLeidos < 5) {
+```
+
+y por supuesto:
+```java
+   }
+                mensajesLeidos++;
+```
+
+A partir de entonces lo podemos probar.
+
+> Hacer notar que tenemos control absoluto sobre qué mensajes tomamos, podríamos replicar particiones o hacer lo que nos pareciese.
+
 
 
 

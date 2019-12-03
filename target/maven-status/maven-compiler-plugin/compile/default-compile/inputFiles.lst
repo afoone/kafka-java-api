@@ -1,1 +1,4 @@
-/home/atienda/desarrollo/cursos/kafka/java-api/src/main/java/com/iprocuratio/kafka/App.java
+/home/atienda/desarrollo/cursos/kafka/01-java-api/src/main/java/com/iprocuratio/kafka/ConsumerDemo.java
+/home/atienda/desarrollo/cursos/kafka/01-java-api/src/main/java/com/iprocuratio/kafka/App.java
+/home/atienda/desarrollo/cursos/kafka/01-java-api/src/main/java/com/iprocuratio/kafka/ProducerDemo.java
+/home/atienda/desarrollo/cursos/kafka/01-java-api/src/main/java/com/iprocuratio/kafka/ConsumerThread.java
